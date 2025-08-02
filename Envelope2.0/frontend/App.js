@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import LoadingScreen from './LoadingScreen';
+import LoginScreen from './LoginScreen';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -14,18 +15,7 @@ export default function App() {
     return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
   }
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Envelope App Test</Text>
-      <Text style={styles.subtitle}>If you can see this, the app is working! 🎉</Text>
-      
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Test Button</Text>
-      </TouchableOpacity>
-      
-      <StatusBar style="auto" />
-    </View>
-  );
+  return <LoginScreen />;
 }
 
 const styles = StyleSheet.create({
