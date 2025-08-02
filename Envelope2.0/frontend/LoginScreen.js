@@ -18,6 +18,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSignupMode, setIsSignupMode] = useState(false);
 
   // Check if user is already logged in
   useEffect(() => {
@@ -26,7 +27,7 @@ const LoginScreen = () => {
 
   const checkLoginStatus = async () => {
     try {
-      const userData = await AsyncStorage.getItem('user');
+      const userData = await AsyncStorage.getItem('currentUser');
       if (userData) {
         setIsLoggedIn(true);
       }
@@ -43,18 +44,27 @@ const LoginScreen = () => {
 
     setIsLoading(true);
     try {
-      // For now, accept any email/password
-      const userData = {
-        id: Date.now().toString(),
-        email: email,
-        name: email.split('@')[0], // Use email prefix as name
-        createdAt: new Date().toISOString(),
-      };
+      // Get all registered users
+      const usersData = await AsyncStorage.getItem('users');
+      const users = usersData ? JSON.parse(usersData) : [];
 
-      // Save user data to AsyncStorage
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
-      setIsLoggedIn(true);
-      Alert.alert('Success', 'Welcome back!');
+      // Find user with matching email and password
+      const user = users.find(u => u.email === email && u.password === password);
+
+      if (user) {
+        // User exists and credentials are correct
+        await AsyncStorage.setItem('currentUser', JSON.stringify(user));
+        setIsLoggedIn(true);
+        Alert.alert('Success', 'Welcome back!');
+      } else {
+        // Check if email exists but password is wrong
+        const existingUser = users.find(u => u.email === email);
+        if (existingUser) {
+          Alert.alert('Error', 'Incorrect password. Please try again.');
+        } else {
+          Alert.alert('Error', 'User not found. Please sign up first.');
+        }
+      }
     } catch (error) {
       Alert.alert('Error', 'Login failed');
     } finally {
@@ -62,9 +72,58 @@ const LoginScreen = () => {
     }
   };
 
+  const handleSignup = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Get all registered users
+      const usersData = await AsyncStorage.getItem('users');
+      const users = usersData ? JSON.parse(usersData) : [];
+
+      // Check if user already exists
+      const existingUser = users.find(u => u.email === email);
+      if (existingUser) {
+        Alert.alert('Error', 'User already exists. Please login instead.');
+        setIsSignupMode(false);
+        return;
+      }
+
+      // Create new user
+      const newUser = {
+        id: Date.now().toString(),
+        email: email,
+        password: password,
+        name: email.split('@')[0], // Use email prefix as name
+        createdAt: new Date().toISOString(),
+      };
+
+      // Add to users array
+      users.push(newUser);
+      await AsyncStorage.setItem('users', JSON.stringify(users));
+
+      // Set as current user
+      await AsyncStorage.setItem('currentUser', JSON.stringify(newUser));
+      setIsLoggedIn(true);
+      Alert.alert('Success', 'Account created successfully!');
+    } catch (error) {
+      Alert.alert('Error', 'Signup failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('user');
+      await AsyncStorage.removeItem('currentUser');
       setIsLoggedIn(false);
       setEmail('');
       setPassword('');
@@ -96,8 +155,15 @@ const LoginScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <MaterialIcons name="account-balance-wallet" size={80} color="#295642" />
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to your envelope account</Text>
+          <Text style={styles.title}>
+            {isSignupMode ? 'Create Account' : 'Welcome Back'}
+          </Text>
+          <Text style={styles.subtitle}>
+            {isSignupMode 
+              ? 'Join the envelope savings community' 
+              : 'Sign in to your envelope account'
+            }
+          </Text>
         </View>
 
         {/* Form */}
@@ -128,12 +194,27 @@ const LoginScreen = () => {
           </View>
 
           <TouchableOpacity
-            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-            onPress={handleLogin}
+            style={[styles.mainButton, isLoading && styles.mainButtonDisabled]}
+            onPress={isSignupMode ? handleSignup : handleLogin}
             disabled={isLoading}
           >
-            <Text style={styles.loginButtonText}>
-              {isLoading ? 'Signing In...' : 'Sign In'}
+            <Text style={styles.mainButtonText}>
+              {isLoading 
+                ? (isSignupMode ? 'Creating Account...' : 'Signing In...') 
+                : (isSignupMode ? 'Create Account' : 'Sign In')
+              }
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Toggle between login and signup */}
+        <View style={styles.toggleContainer}>
+          <Text style={styles.toggleText}>
+            {isSignupMode ? 'Already have an account? ' : "Don't have an account? "}
+          </Text>
+          <TouchableOpacity onPress={() => setIsSignupMode(!isSignupMode)}>
+            <Text style={styles.toggleLink}>
+              {isSignupMode ? 'Sign In' : 'Sign Up'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -193,7 +274,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  loginButton: {
+  mainButton: {
     backgroundColor: '#295642',
     paddingVertical: 15,
     borderRadius: 12,
@@ -205,12 +286,26 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  loginButtonDisabled: {
+  mainButtonDisabled: {
     backgroundColor: '#95A5A6',
   },
-  loginButtonText: {
+  mainButtonText: {
     color: 'white',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  toggleText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  toggleLink: {
+    color: '#295642',
+    fontSize: 14,
     fontWeight: 'bold',
   },
   button: {
