@@ -1,7 +1,16 @@
-import React from 'react';
-import { useFonts, FredokaOne_400Regular } from '@expo-google-fonts/fredoka-one';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import React from "react";
+import {
+  useFonts,
+  FredokaOne_400Regular,
+} from "@expo-google-fonts/fredoka-one";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const StepBasic = ({ value, onChange, onNext, onBack }) => {
   const [fontsLoaded] = useFonts({
@@ -25,31 +34,25 @@ const StepBasic = ({ value, onChange, onNext, onBack }) => {
       <View style={styles.content}>
         <Text style={styles.greeting}>HELLO!</Text>
         <Text style={styles.question}>What's your name?</Text>
-        
-        <TextInput 
-          style={styles.input} 
-          value={value.name} 
-          onChangeText={(t) => set({ name: t })} 
+
+        <TextInput
+          style={styles.input}
+          value={value.name}
+          onChangeText={(t) => set({ name: t })}
           placeholder="Name Here"
           placeholderTextColor="#8A8A8A"
         />
 
-
-<View style={styles.innerContainer}>
-        <TouchableOpacity 
-          style={styles.cta} 
-          onPress={onNext} 
-          activeOpacity={0.8}
-        >
-          <MaterialIcons name="arrow-forward" size={28} color="#FFFFFF" />
-        </TouchableOpacity>
+        <View style={styles.innerContainer}>
+          <TouchableOpacity
+            style={styles.cta}
+            onPress={onNext}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons name="arrow-forward" size={28} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
-      </View>
-
-      {/* Bottom Button */}
-      {/* <TouchableOpacity style={styles.nextButton} onPress={onNext}>
-        <Text style={styles.nextButtonText}>Next</Text>
-      </TouchableOpacity> */}
     </View>
   );
 };
@@ -57,12 +60,12 @@ const StepBasic = ({ value, onChange, onNext, onBack }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
     paddingTop: 60,
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 60,
     left: 20,
     zIndex: 1,
@@ -73,45 +76,33 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 52,
-    fontWeight: '900',
-    color: '#0ECF8E',
-    fontFamily: 'FredokaOne_400Regular',
+    fontWeight: "900",
+    color: "#0ECF8E",
+    fontFamily: "FredokaOne_400Regular",
     marginBottom: 0,
   },
   question: {
     fontSize: 30,
-    fontWeight: '600',
-    color: '#333333',
+    fontWeight: "600",
+    color: "#333333",
     marginBottom: 30,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 2,
-    borderColor: '#0ECF8E',
+    borderColor: "#0ECF8E",
     borderRadius: 18,
     padding: 9,
     fontSize: 18,
-    color: '#333333',
+    color: "#333333",
     marginBottom: 10,
-  },
-  nextButton: {
-    backgroundColor: '#0ECF8E',
-    paddingVertical: 18,
-    borderRadius: 12,
-    marginBottom: 40,
-    alignItems: 'center',
-  },
-  nextButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   innerContainer: {
     marginTop: 16,
-    borderColor: '#0ECF8E',
+    borderColor: "#0ECF8E",
     width: 65,
     height: 65,
-    borderRadius:100,
+    borderRadius: 100,
     borderWidth: 2,
   },
   cta: {
@@ -120,12 +111,12 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     borderWidth: 3,
-    borderColor: '#0ECF8E',
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: '#0ECF8E',
-    position: 'relative',
+    borderColor: "#0ECF8E",
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "#0ECF8E",
+    position: "relative",
     top: -13,
     left: 3,
   },
