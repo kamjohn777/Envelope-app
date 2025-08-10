@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   question: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: '600',
     color: '#333333',
     marginBottom: 30,
@@ -88,10 +88,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#0ECF8E',
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 9,
     fontSize: 18,
     color: '#333333',
+    marginBottom: 10,
   },
   nextButton: {
     backgroundColor: '#0ECF8E',
