@@ -1,38 +1,99 @@
 import React from 'react';
+import { useFonts, FredokaOne_400Regular } from '@expo-google-fonts/fredoka-one';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const StepBasic = ({ value, onChange, onNext, onBack }) => {
+  const [fontsLoaded] = useFonts({
+    FredokaOne_400Regular,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   const set = (patch) => onChange({ ...value, ...patch });
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Basic info</Text>
-      <View style={styles.group}>
-        <Text style={styles.label}>Name</Text>
-        <TextInput style={styles.input} value={value.name} onChangeText={(t) => set({ name: t })} placeholder="Your name" />
+      {/* Back Arrow */}
+      <TouchableOpacity style={styles.backButton} onPress={onBack}>
+        <MaterialIcons name="arrow-back" size={24} color="#000000" />
+      </TouchableOpacity>
+
+      {/* Main Content */}
+      <View style={styles.content}>
+        <Text style={styles.greeting}>HELLO!</Text>
+        <Text style={styles.question}>What's your name?</Text>
+        
+        <TextInput 
+          style={styles.input} 
+          value={value.name} 
+          onChangeText={(t) => set({ name: t })} 
+          placeholder="Name Here"
+          placeholderTextColor="#8A8A8A"
+        />
       </View>
-      <View style={styles.group}>
-        <Text style={styles.label}>Currency</Text>
-        <TextInput style={styles.input} value={value.currency} onChangeText={(t) => set({ currency: t })} placeholder="USD" />
-      </View>
-      <View style={styles.row}>
-        <TouchableOpacity style={[styles.button, styles.secondary]} onPress={onBack}><Text style={styles.buttonTextSecondary}>Back</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={onNext}><Text style={styles.buttonText}>Next</Text></TouchableOpacity>
-      </View>
+
+      {/* Bottom Button */}
+      <TouchableOpacity style={styles.nextButton} onPress={onNext}>
+        <Text style={styles.nextButtonText}>Next</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#295642', marginBottom: 12 },
-  group: { marginBottom: 16 },
-  label: { color: '#333', marginBottom: 6 },
-  input: { backgroundColor: 'white', borderRadius: 10, padding: 12, fontSize: 16 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
-  button: { backgroundColor: '#295642', paddingVertical: 12, paddingHorizontal: 22, borderRadius: 10 },
-  buttonText: { color: 'white', fontWeight: 'bold' },
-  secondary: { backgroundColor: '#EAEDED' },
-  buttonTextSecondary: { color: '#295642', fontWeight: 'bold' },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    zIndex: 1,
+  },
+  content: {
+    flex: 1,
+    paddingTop: 80,
+  },
+  greeting: {
+    fontSize: 52,
+    fontWeight: '900',
+    color: '#0ECF8E',
+    fontFamily: 'FredokaOne_400Regular',
+    marginBottom: 20,
+  },
+  question: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 40,
+  },
+  input: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#0ECF8E',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 18,
+    color: '#333333',
+  },
+  nextButton: {
+    backgroundColor: '#0ECF8E',
+    paddingVertical: 18,
+    borderRadius: 12,
+    marginBottom: 40,
+    alignItems: 'center',
+  },
+  nextButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
 });
 
 export default StepBasic;
