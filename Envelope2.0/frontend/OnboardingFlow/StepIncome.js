@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFonts, FredokaOne_400Regular } from '@expo-google-fonts/fredoka-one';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const StepIncome = ({ value, onChange, onNext, onBack }) => {
@@ -8,9 +8,123 @@ const StepIncome = ({ value, onChange, onNext, onBack }) => {
     FredokaOne_400Regular,
   });
 
+  // Input validation states
+  const [payFrequencyError, setPayFrequencyError] = useState('');
+  const [incomeError, setIncomeError] = useState('');
+
   if (!fontsLoaded) {
     return null;
   }
+
+  // Security: Input sanitization and validation
+  const sanitizeInput = (input) => {
+    // Remove any potential script tags, HTML, and dangerous characters
+    return input
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/[<>\"'&]/g, '')
+      .trim();
+  };
+
+  // Security: Validate pay frequency input
+  const validatePayFrequency = (input) => {
+    const sanitized = sanitizeInput(input);
+    
+    // Only allow specific pay frequency values
+    const allowedFrequencies = ['monthly', 'biweekly', 'weekly', 'annually', 'yearly'];
+    const normalized = sanitized.toLowerCase();
+    
+    if (!allowedFrequencies.includes(normalized)) {
+      setPayFrequencyError('Please enter: Monthly, Biweekly, Weekly, or Annually');
+      return false;
+    }
+    
+    setPayFrequencyError('');
+    return true;
+  };
+
+  // Security: Validate income amount input
+  const validateIncomeAmount = (input) => {
+    const sanitized = sanitizeInput(input);
+    
+    // Only allow numbers, commas, and decimal points
+    const numericRegex = /^[0-9,]*\.?[0-9]*$/;
+    
+    if (!numericRegex.test(sanitized)) {
+      setIncomeError('Please enter only numbers (e.g., 5000 or 5,000)');
+      return false;
+    }
+    
+    // Convert to number and validate range
+    const numericValue = parseFloat(sanitized.replace(/,/g, ''));
+    
+    if (isNaN(numericValue) || numericValue < 0) {
+      setIncomeError('Please enter a valid positive number');
+      return false;
+    }
+    
+    if (numericValue > 999999999) {
+      setIncomeError('Amount too large. Please enter a realistic income value');
+      return false;
+    }
+    
+    setIncomeError('');
+    return true;
+  };
+
+  // Security: Handle pay frequency changes with validation
+  const handlePayFrequencyChange = (text) => {
+    // Allow free editing - just sanitize and store
+    const sanitized = sanitizeInput(text);
+    set({ payFrequency: sanitized });
+    // Clear any previous errors when user starts typing
+    if (payFrequencyError) {
+      setPayFrequencyError('');
+    }
+  };
+
+  // Security: Handle income amount changes with validation
+  const handleIncomeAmountChange = (text) => {
+    // Allow free editing - just sanitize and store
+    const sanitized = sanitizeInput(text);
+    setIncome({ amount: sanitized });
+    // Clear any previous errors when user starts typing
+    if (incomeError) {
+      setIncomeError('');
+    }
+  };
+
+  // Security: Validate all inputs before proceeding
+  const handleNext = () => {
+    const isPayFrequencyValid = validatePayFrequency(value.payFrequency || '');
+    const isIncomeValid = validateIncomeAmount(String(value.income?.amount || ''));
+    
+    if (!isPayFrequencyValid || !isIncomeValid) {
+      Alert.alert('Validation Error', 'Please fix the errors before continuing');
+      return;
+    }
+    
+    // Additional security check: ensure no suspicious patterns
+    const suspiciousPatterns = [
+      /javascript:/i,
+      /data:text\/html/i,
+      /vbscript:/i,
+      /on\w+\s*=/i,
+      /<iframe/i,
+      /<object/i,
+      /<embed/i
+    ];
+    
+    const allInputs = JSON.stringify(value).toLowerCase();
+    const hasSuspiciousContent = suspiciousPatterns.some(pattern => pattern.test(allInputs));
+    
+    if (hasSuspiciousContent) {
+      Alert.alert('Security Alert', 'Suspicious content detected. Please check your inputs.');
+      return;
+    }
+    
+    onNext();
+  };
 
   const setIncome = (patch) => onChange({ ...value, income: { ...value.income, ...patch } });
   const set = (patch) => onChange({ ...value, ...patch });
@@ -25,7 +139,7 @@ const StepIncome = ({ value, onChange, onNext, onBack }) => {
       <View style={styles.content}>
         {/* Greeting and Name */}
         <Text style={styles.greeting}>HELLO!</Text>
-        <Text style={styles.userName}>{value.name || 'Kameron Johnson'}</Text>
+        <Text style={styles.userName}>{value.name || ''}</Text>
         
         {/* Income Question */}
         <Text style={styles.question}>
@@ -36,34 +150,47 @@ const StepIncome = ({ value, onChange, onNext, onBack }) => {
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Pay frequency</Text>
           <TextInput 
-            style={styles.input} 
-            value={value.payFrequency || 'Monthly'} 
-            onChangeText={(t) => set({ payFrequency: t })} 
+            style={[styles.input, payFrequencyError ? styles.inputError : null]} 
+            value={value.payFrequency || ''} 
+            onChangeText={handlePayFrequencyChange} 
             placeholder="Monthly"
             placeholderTextColor="#8A8A8A"
+            maxLength={20}
+            autoCapitalize="none"
+            autoCorrect={false}
           />
+          {payFrequencyError ? (
+            <Text style={styles.errorText}>{payFrequencyError}</Text>
+          ) : null}
         </View>
 
         {/* Income Amount Input */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Income amount</Text>
           <TextInput 
-            style={styles.input} 
-            value={String(value.income?.amount || '0')} 
-            onChangeText={(t) => setIncome({ amount: Number(t) || 0 })} 
+            style={[styles.input, incomeError ? styles.inputError : null]} 
+            value={String(value.income?.amount || '')} 
+            onChangeText={handleIncomeAmountChange} 
             keyboardType="numeric" 
             placeholder="0"
             placeholderTextColor="#8A8A8A"
+            maxLength={15}
+            autoCorrect={false}
           />
+          {incomeError ? (
+            <Text style={styles.errorText}>{incomeError}</Text>
+          ) : null}
         </View>
 
-        {/* Circular Element */}
-        <View style={styles.circle} />
-
-        {/* Bottom Button */}
-        <TouchableOpacity style={styles.nextButton} onPress={onNext}>
-          <Text style={styles.nextButtonText}>Next</Text>
-        </TouchableOpacity>
+        <View style={styles.innerContainer}>
+          <TouchableOpacity
+            style={styles.cta}
+            onPress={handleNext}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons name="arrow-forward" size={28} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -103,7 +230,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500',
     color: '#666666',
-    marginBottom: 40,
+    marginBottom: 10,
     lineHeight: 24,
   },
   inputGroup: {
@@ -119,33 +246,42 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#0ECF8E',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 20,
+    padding: 10,
     fontSize: 16,
     color: '#333333',
   },
-  circle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  inputError: {
+    borderColor: '#FF4444',
+  },
+  errorText: {
+    color: '#FF4444',
+    fontSize: 14,
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  innerContainer: {
+    marginTop: 16,
+    borderColor: "#0ECF8E",
+    width: 65,
+    height: 65,
+    borderRadius: 100,
+    borderWidth: 2,
+  },
+  cta: {
+    marginTop: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     borderWidth: 3,
-    borderColor: '#0ECF8E',
-    backgroundColor: '#FFFFFF',
-    alignSelf: 'flex-start',
-    marginTop: 20,
-    marginBottom: 40,
-  },
-  nextButton: {
-    backgroundColor: '#0ECF8E',
-    paddingVertical: 18,
-    borderRadius: 12,
-    marginBottom: 40,
-    alignItems: 'center',
-  },
-  nextButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
+    borderColor: "#0ECF8E",
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "#0ECF8E",
+    position: "relative",
+    top: -13,
+    left: 3,
   },
 });
 
