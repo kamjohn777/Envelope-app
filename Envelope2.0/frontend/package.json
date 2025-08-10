@@ -9,7 +9,9 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo-google-fonts/fredoka-one": "^0.2.3",
     "@expo-google-fonts/luckiest-guy": "^0.4.0",
+    "@expo-google-fonts/sniglet": "^0.4.0",
     "@expo/metro-runtime": "~5.0.4",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/native": "^6.1.9",
