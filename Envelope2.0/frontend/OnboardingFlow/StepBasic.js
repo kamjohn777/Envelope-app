@@ -33,12 +33,23 @@ const StepBasic = ({ value, onChange, onNext, onBack }) => {
           placeholder="Name Here"
           placeholderTextColor="#8A8A8A"
         />
+
+
+<View style={styles.innerContainer}>
+        <TouchableOpacity 
+          style={styles.cta} 
+          onPress={onNext} 
+          activeOpacity={0.8}
+        >
+          <MaterialIcons name="arrow-forward" size={28} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
       </View>
 
       {/* Bottom Button */}
-      <TouchableOpacity style={styles.nextButton} onPress={onNext}>
+      {/* <TouchableOpacity style={styles.nextButton} onPress={onNext}>
         <Text style={styles.nextButtonText}>Next</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
@@ -65,20 +76,20 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#0ECF8E',
     fontFamily: 'FredokaOne_400Regular',
-    marginBottom: 20,
+    marginBottom: 0,
   },
   question: {
     fontSize: 24,
     fontWeight: '600',
     color: '#333333',
-    marginBottom: 40,
+    marginBottom: 30,
   },
   input: {
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#0ECF8E',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 9,
     fontSize: 18,
     color: '#333333',
   },
@@ -93,6 +104,29 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  innerContainer: {
+    marginTop: 16,
+    borderColor: '#0ECF8E',
+    width: 65,
+    height: 65,
+    borderRadius:100,
+    borderWidth: 2,
+  },
+  cta: {
+    marginTop: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 3,
+    borderColor: '#0ECF8E',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: '#0ECF8E',
+    position: 'relative',
+    top: -13,
+    left: 3,
   },
 });
 
