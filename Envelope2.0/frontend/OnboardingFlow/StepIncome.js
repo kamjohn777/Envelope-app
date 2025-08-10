@@ -221,13 +221,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   userName: {
-    fontSize: 24,
+    fontSize: 34,
     fontWeight: '600',
     color: '#333333',
-    marginBottom: 30,
+    marginBottom: 10,
   },
   question: {
-    fontSize: 18,
+    fontSize: 12,
     fontWeight: '500',
     color: '#666666',
     marginBottom: 10,

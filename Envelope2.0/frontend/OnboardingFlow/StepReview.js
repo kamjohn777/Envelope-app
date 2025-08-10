@@ -9,9 +9,10 @@ const StepReview = ({ profile, envelopes, onBack, onConfirm }) => {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Profile</Text>
         <Text>Name: {profile.name}</Text>
-        <Text>Currency: {profile.currency}</Text>
+        <Text>Currency: {profile.currency} ({profile.currencySymbol})</Text>
         <Text>Pay frequency: {profile.payFrequency}</Text>
-        <Text>Income: {profile.income.amount} / {profile.income.cadence}</Text>
+        <Text>Income: {profile.currencySymbol}{profile.income.amount} / {profile.payFrequency}</Text>
+        <Text>Monthly Savings Goal: {profile.currencySymbol}{profile.savingsAmount}</Text>
       </View>
 
       <View style={styles.card}>
